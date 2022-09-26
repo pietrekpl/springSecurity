@@ -15,8 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.net.http.HttpRequest;
 
-import static com.example.springSecurity.security.ApplicationUserRole.ADMIN;
-import static com.example.springSecurity.security.ApplicationUserRole.STUDENT;
+import static com.example.springSecurity.security.ApplicationUserRole.*;
 
 @Configuration
 @EnableWebSecurity
@@ -27,11 +26,13 @@ public class ApplicationSecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests((auth) -> auth
-                .antMatchers("/", "index", "/css/*").permitAll()
-                .antMatchers("/students/**").hasRole(STUDENT.name())
-                .anyRequest().authenticated()
-        ).httpBasic(Customizer.withDefaults());
+        http
+                .csrf().disable()
+                .authorizeRequests((auth) -> auth
+                        .antMatchers("/", "index", "/css/*").permitAll()
+                        .antMatchers("/students/**").hasRole(STUDENT.name())
+                        .anyRequest().authenticated()
+                ).httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
@@ -51,7 +52,13 @@ public class ApplicationSecurityConfiguration {
                 .build();
 
 
-        return new InMemoryUserDetailsManager(paulStudent,peterAdmin);
+        UserDetails adamAdmin = User.builder()
+                .username("adam")
+                .password(passwordEncoder.encode("password1234"))
+                .roles(ADMIN_TRAINEE.name())
+                .build();
+
+        return new InMemoryUserDetailsManager(paulStudent, peterAdmin, adamAdmin);
 
 
     }
