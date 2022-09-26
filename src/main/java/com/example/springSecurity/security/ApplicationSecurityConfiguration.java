@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -22,6 +23,7 @@ import static com.example.springSecurity.security.ApplicationUserRole.*;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationSecurityConfiguration {
 
     private final PasswordEncoder passwordEncoder;
@@ -33,10 +35,10 @@ public class ApplicationSecurityConfiguration {
                 .authorizeRequests((auth) -> auth
                         .antMatchers("/", "index", "/css/*").permitAll()
                         .antMatchers("/students/**").hasRole(STUDENT.name())
-                        .antMatchers(HttpMethod.DELETE, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
+                       /* .antMatchers(HttpMethod.DELETE, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
                         .antMatchers(HttpMethod.PUT, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
                         .antMatchers(HttpMethod.POST, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
-                        .antMatchers(HttpMethod.GET, "/management/students/**").hasAnyRole(ADMIN.name(), ADMIN_TRAINEE.name())
+                        .antMatchers(HttpMethod.GET, "/management/students/**").hasAnyRole(ADMIN.name(), ADMIN_TRAINEE.name())*/
                         .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());
         return http.build();
