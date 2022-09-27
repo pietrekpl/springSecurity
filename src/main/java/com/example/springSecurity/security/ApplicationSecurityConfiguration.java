@@ -4,7 +4,6 @@ package com.example.springSecurity.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,10 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-import java.net.http.HttpRequest;
-
-import static com.example.springSecurity.security.ApplicationUserPermission.COURSE_WRITE;
 import static com.example.springSecurity.security.ApplicationUserRole.*;
 
 @Configuration
@@ -31,16 +28,14 @@ public class ApplicationSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                /*.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .and()*/
                 .csrf().disable()
                 .authorizeRequests((auth) -> auth
                         .antMatchers("/", "index", "/css/*").permitAll()
                         .antMatchers("/students/**").hasRole(STUDENT.name())
-                       /* .antMatchers(HttpMethod.DELETE, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
-                        .antMatchers(HttpMethod.PUT, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
-                        .antMatchers(HttpMethod.POST, "/management/students/**").hasAuthority(COURSE_WRITE.getPermision())
-                        .antMatchers(HttpMethod.GET, "/management/students/**").hasAnyRole(ADMIN.name(), ADMIN_TRAINEE.name())*/
                         .anyRequest().authenticated()
-                ).httpBasic(Customizer.withDefaults());
+                ).formLogin();
         return http.build();
     }
 
