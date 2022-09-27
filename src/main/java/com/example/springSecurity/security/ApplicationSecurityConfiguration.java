@@ -28,14 +28,12 @@ public class ApplicationSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                /*.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .and()*/
                 .csrf().disable()
                 .authorizeRequests((auth) -> auth
                         .antMatchers("/", "index", "/css/*").permitAll()
                         .antMatchers("/students/**").hasRole(STUDENT.name())
                         .anyRequest().authenticated()
-                ).formLogin();
+                ).formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/courses",true);
         return http.build();
     }
 
