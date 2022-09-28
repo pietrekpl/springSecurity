@@ -1,11 +1,17 @@
 package com.example.springSecurity.security;
 
 
+import com.example.springSecurity.auth.ApplicationUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,6 +34,7 @@ import static com.example.springSecurity.security.ApplicationUserRole.*;
 public class ApplicationSecurityConfiguration {
 
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserService applicationUserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,33 +61,16 @@ public class ApplicationSecurityConfiguration {
 
         return http.build();
     }
-
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails paulStudent = User.builder()
-                .username("paul")
-                .password(passwordEncoder.encode("password"))
-                .authorities(STUDENT.getGrantedAuthorities())
-                .build();
-
-
-        UserDetails peterAdmin = User.builder()
-                .username("peter")
-                .password(passwordEncoder.encode("password1234"))
-                .authorities(ADMIN.getGrantedAuthorities())
-                .build();
-
-
-        UserDetails adamAdmin = User.builder()
-                .username("adam")
-                .password(passwordEncoder.encode("password1234"))
-                .authorities(ADMIN_TRAINEE.getGrantedAuthorities())
-                .build();
-
-        return new InMemoryUserDetailsManager(paulStudent, peterAdmin, adamAdmin);
-
-
+    public DaoAuthenticationProvider daoAuthenticationProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(applicationUserService);
+        return provider;
     }
 
-
+   /* @Bean
+    AuthenticationManagerBuilder authenticationManager(AuthenticationManagerBuilder builder){
+        return builder.authenticationProvider(daoAuthenticationProvider());
+    }*/
 }
